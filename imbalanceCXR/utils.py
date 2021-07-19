@@ -22,7 +22,7 @@ try:
 except Exception as e:
     print(e, "Couldnt import logregCal, wont apply calibration")
     CALIBRATION_AVAILABLE = False
-    
+
 def plotBrierMetrics(means, stds, sorted_pathologies, to_plot_metrics=None,
                                plot_type='combined',labels=None):
 

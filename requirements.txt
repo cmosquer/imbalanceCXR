@@ -1,4 +1,4 @@
-focal-loss
+focal-loss-torch
 torchxrayvision
 scikit-learn
 matplotlib
