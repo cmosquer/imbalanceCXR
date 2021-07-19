@@ -13,11 +13,16 @@ from sklearn.calibration import calibration_curve
 from sklearn.metrics import auc as sklearnAUC
 import torchxrayvision as xrv
 from focal_loss.focal_loss import FocalLoss
-from dca_plda.calibration import logregCal
 from tqdm import tqdm as tqdm_base
 from matplotlib import pyplot as plt
 
-
+try:
+    from ..DCA_PLDA.dca_plda.calibration import logregCal
+    CALIBRATION_AVAILABLE = True
+except Exception as e:
+    print(e, "Couldnt import logregCal, wont apply calibration")
+    CALIBRATION_AVAILABLE = False
+    
 def plotBrierMetrics(means, stds, sorted_pathologies, to_plot_metrics=None,
                                plot_type='combined',labels=None):
 
@@ -628,24 +633,25 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
             pathology_outputs[pathology] = np.concatenate(pathology_outputs[pathology])
             pathology_outputs_sigmoid[pathology] = np.concatenate(pathology_outputs_sigmoid[pathology])
             pathology_targets[pathology] = np.concatenate(pathology_targets[pathology])
+            if CALIBRATION_AVAILABLE:
+                # Calibration with dca_plda package
+                epsilon=1e-100
+                positive_posteriors = pathology_outputs_sigmoid[pathology]
+                negative_posteriors = 1-pathology_outputs_sigmoid[pathology]
+                train_positive_prior = priors['train']['priors_pos'][pathology]
+                train_negative_prior = priors['train']['priors_neg'][pathology]
+                LLR = np.log((positive_posteriors+epsilon)/(negative_posteriors+epsilon)) - np.log((train_positive_prior+epsilon)/(train_negative_prior+epsilon))
 
-            # Calibration with dca_plda package
-            epsilon=1e-100
-            positive_posteriors = pathology_outputs_sigmoid[pathology]
-            negative_posteriors = 1-pathology_outputs_sigmoid[pathology]
-            train_positive_prior = priors['train']['priors_pos'][pathology]
-            train_negative_prior = priors['train']['priors_neg'][pathology]
-            LLR = np.log((positive_posteriors+epsilon)/(negative_posteriors+epsilon)) - np.log((train_positive_prior+epsilon)/(train_negative_prior+epsilon))
+                tar = LLR[targets == 1]
+                non = LLR[targets == 0]
+                ptar = priors['valid']['priors_pos'][pathology]
+                theta = np.log(cost_ratio* (1 - ptar) / ptar)
+                ptar_hat = 1 / (1 + np.exp(theta))
 
-            tar = LLR[targets == 1]
-            non = LLR[targets == 0]
-            ptar = priors['valid']['priors_pos'][pathology]
-            theta = np.log(cost_ratio* (1 - ptar) / ptar)
-            ptar_hat = 1 / (1 + np.exp(theta))
-            a, b = logregCal(tar, non, ptar_hat, return_params=True)
-            k = -np.log((1 - ptar) / ptar)
+                a, b = logregCal(tar, non, ptar_hat, return_params=True)
+                k = -np.log((1 - ptar) / ptar)
 
-            pathology_outputs_sigmoid_calibrated[pathology] = 1 / (1 + np.exp(-(a*LLR + b) + k))
+                pathology_outputs_sigmoid_calibrated[pathology] = 1 / (1 + np.exp(-(a*LLR + b) + k))
 
         if save_preds:
             os.makedirs(join(cfg.output_dir, name),exist_ok=True)
@@ -698,35 +704,36 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
     for metric,mean in metrics_means.items():
         print_string += f' Avg {metric}={mean:4.4f}  '
     print(print_string)
+    if CALIBRATION_AVAILABLE:
 
-    metrics_results_calibrated = {}
-    for metric in metrics:
-        metrics_results_calibrated[metric] = []
-    thresholds_roc_calibrated = []
-    for pathology in range(len(pathology_targets)):
-        if len(np.unique(pathology_targets[pathology]))> 1:
-            y_true,y_pred = np.array(pathology_targets[pathology],dtype=np.int64), pathology_outputs_sigmoid_calibrated[pathology]
-            ptar = priors['valid']['priors_pos']
-            Tau_bayes = cost_ratio * (1 - ptar) / ptar
+        metrics_results_calibrated = {}
+        for metric in metrics:
+            metrics_results_calibrated[metric] = []
+        thresholds_roc_calibrated = []
+        for pathology in range(len(pathology_targets)):
+            if len(np.unique(pathology_targets[pathology]))> 1:
+                y_true,y_pred = np.array(pathology_targets[pathology],dtype=np.int64), pathology_outputs_sigmoid_calibrated[pathology]
+                ptar = priors['valid']['priors_pos']
+                Tau_bayes = cost_ratio * (1 - ptar) / ptar
 
-            th_posteriors = Tau_bayes / (1 + Tau_bayes)
+                th_posteriors = Tau_bayes / (1 + Tau_bayes)
 
-            print('\nCOSTS TH: ',th_posteriors)
-            metrics_results_calibrated,thresholds_roc_calibrated = getMetrics(y_true,y_pred,None,
-                                                                              metrics_results_calibrated,
-                                                                              thresholds_roc_calibrated,
-                                                                              costs_thr=th_posteriors,
-                                                                              )
+                print('\nCOSTS TH: ',th_posteriors)
+                metrics_results_calibrated,thresholds_roc_calibrated = getMetrics(y_true,y_pred,None,
+                                                                                  metrics_results_calibrated,
+                                                                                  thresholds_roc_calibrated,
+                                                                                  costs_thr=th_posteriors,
+                                                                                  )
 
-        else:
-            for metric in metrics:
-                metrics_results_calibrated[metric].append(np.nan)
+            else:
+                for metric in metrics:
+                    metrics_results_calibrated[metric].append(np.nan)
 
-    #Add calibrated dictionary to metrics_results dictionary
-    for oldkey in metrics:
-        metrics_results_calibrated[oldkey + '_calibrated'] = metrics_results_calibrated.pop(oldkey)
+        #Add calibrated dictionary to metrics_results dictionary
+        for oldkey in metrics:
+            metrics_results_calibrated[oldkey + '_calibrated'] = metrics_results_calibrated.pop(oldkey)
 
-    metrics_results.update(metrics_results_calibrated)
+        metrics_results.update(metrics_results_calibrated)
 
     return metrics_means['AUC-ROC'], metrics_means['AUC-PR'], metrics_results, thresholds, pathology_outputs, pathology_targets
 
