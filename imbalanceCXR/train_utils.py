@@ -121,6 +121,7 @@ def train(model, dataset, dataset_name, cfg):
             criterions=criterions_valid,
             priors=priors_dict,
             dataset_name=dataset_name,
+            cfg=cfg,
         )
 
         if os.path.exists(join(cfg.output_dir, f'{dataset_name}-performance-metrics.pkl')):
