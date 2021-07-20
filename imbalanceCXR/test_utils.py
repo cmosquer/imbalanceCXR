@@ -268,8 +268,6 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                     metrics_results[metric].append(np.nan)
             for loss_function, criterion in criterions.items():
                 metrics_results[loss_function] = avg_loss_results[loss_function][pathology]
-    print('NLLs ', metrics_results['NLL'])
-    print('Weighted NLLs ', metrics_results['weightedNLL'])
 
     metrics_means = {}
     for metric in metrics:
