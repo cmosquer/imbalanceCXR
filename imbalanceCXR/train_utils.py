@@ -9,8 +9,8 @@ from os.path import exists, join
 import numpy as np
 import torch
 from torch.optim.lr_scheduler import StepLR
-from utils import getCriterions, tqdm
-from test_utils import valid_epoch
+from imbalanceCXR.utils import getCriterions, tqdm
+from imbalanceCXR.test_utils import valid_epoch
 
 
 def train(model, dataset, dataset_name, cfg):

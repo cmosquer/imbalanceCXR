@@ -8,7 +8,7 @@ import torch
 from sklearn.metrics import roc_auc_score, f1_score, accuracy_score,  brier_score_loss, log_loss, roc_curve, precision_recall_curve
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import auc as sklearnAUC
-from utils import tqdm
+from imbalanceCXR.utils import tqdm
 
 try:
     from calibration import logregCal, PAV
