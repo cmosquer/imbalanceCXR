@@ -196,6 +196,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                 epsilon = 1e-100
                 positive_posteriors = pathology_outputs_sigmoid[pathology]
                 negative_posteriors = 1 - pathology_outputs_sigmoid[pathology]
+                targets = pathology_targets[pathology]
                 train_positive_prior = priors['train']['priors_pos'][pathology]
                 train_negative_prior = priors['train']['priors_neg'][pathology]
                 LLR = np.log((positive_posteriors + epsilon) / (negative_posteriors + epsilon)) - np.log(
@@ -203,6 +204,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
 
                 tar = LLR[targets == 1]
                 non = LLR[targets == 0]
+                print('Len tar {} Len non {}'.format(len(tar), len(non)))
                 ptar = priors['valid']['priors_pos'][pathology]
                 theta = np.log(cost_ratio * (1 - ptar) / ptar)
                 ptar_hat = 1 / (1 + np.exp(theta))
@@ -221,7 +223,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                     #Fit a linear calibrator to the validation set
                     a, b = logregCal(tar, non, ptar_hat, return_params=True)
                     k = -np.log((1 - ptar) / ptar)
-                    calibration_parameters[pathology] = {'a':a, 'b':b, 'k':k}
+                    calibration_parameters[pathology] = {'a': a, 'b': b, 'k': k}
                 pathology_outputs_sigmoid_calibrated[pathology] = 1 / (1 + np.exp(-(a * LLR + b) + k))
 
         if name!='test':
