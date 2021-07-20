@@ -9,12 +9,6 @@ from focal_loss.focal_loss import FocalLoss
 from tqdm import tqdm as tqdm_base
 from matplotlib import pyplot as plt
 
-try:
-    from calibration import logregCal
-    CALIBRATION_AVAILABLE = True
-except Exception as e:
-    print(e, "Couldnt import logregCal, wont apply calibration")
-    CALIBRATION_AVAILABLE = False
 
 def plotBrierMetrics(means, stds, sorted_pathologies, to_plot_metrics=None,
                                plot_type='combined',labels=None):
