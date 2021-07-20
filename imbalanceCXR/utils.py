@@ -1,4 +1,6 @@
-import os
+import os, sys
+sys.path.insert(0,"..")
+
 import pickle
 import pprint
 import random
@@ -17,7 +19,7 @@ from tqdm import tqdm as tqdm_base
 from matplotlib import pyplot as plt
 
 try:
-    from ..DCA_PLDA.dca_plda.calibration import logregCal
+    from DCA_PLDA.dca_plda.calibration import logregCal
     CALIBRATION_AVAILABLE = True
 except Exception as e:
     print(e, "Couldnt import logregCal, wont apply calibration")

@@ -1,5 +1,7 @@
 import pickle
-import os
+import os,sys
+sys.path.insert(0,"..")
+
 import numpy as np
 
 from sklearn.metrics import auc,brier_score_loss, roc_curve, roc_auc_score, confusion_matrix,precision_recall_curve
