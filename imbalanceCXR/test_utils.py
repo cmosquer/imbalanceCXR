@@ -174,7 +174,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
 
         for loss_function, losses in avg_loss_results.items():
             txt += f'\n{loss_function}:'
-            for pathology in range(targets.shape[1]):
+            for pathology in range(len(pathology_targets)):
                 avg_loss_results[loss_function][pathology] /= n_count[pathology]
 
                 txt += f'{pathology}: {avg_loss_results[loss_function][pathology].item()}'
