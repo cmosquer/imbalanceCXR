@@ -1,5 +1,5 @@
 import os, sys
-sys.path.insert(0,"..")
+sys.path.insert(0,"/home/usuariohi/Documentos/Repos/")
 
 import pickle
 import pprint
