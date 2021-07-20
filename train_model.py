@@ -6,9 +6,11 @@ import numpy as np
 
 import torch
 import torchvision, torchvision.transforms
-from configure_datasets import parseDatasets
+from imbalanceCXR.configure_datasets import parseDatasets
 import random
-import utils as train_utils
+from imbalanceCXR.train_utils import train
+from imbalanceCXR.test_utils import valid_epoch
+from imbalanceCXR.utils import getModel
 import torchxrayvision as xrv
 import argparse
 
@@ -134,14 +136,14 @@ for _seed in seed_list:
 
     # create models
     num_classes = train_dataset.labels.shape[1]
-    model = train_utils.getModel(cfg.model,num_classes)
+    model = getModel(cfg.model,num_classes)
     
     device = 'cuda' if cfg.cuda else 'cpu'
     dataset_name = "{}-{}-seed{}-{}".format(cfg.dataset, cfg.model, cfg.seed, cfg.loss_function)
     os.makedirs(cfg.output_dir + '/valid', exist_ok=True)
     if not cfg.only_test:
 
-        train_utils.train(model, train_dataset, dataset_name, cfg)
+        train(model, train_dataset, dataset_name, cfg)
         print("Done training")
 
     if not cfg.only_train:
@@ -156,15 +158,18 @@ for _seed in seed_list:
                                                   num_workers=cfg.threads, pin_memory=cfg.cuda)
         print("Starting test")
 
+        with open(os.path.join(cfg.output_dir, f'{dataset_name}-priors.pkl'), "rb") as f:
+            priors_dict = pickle.load(f)
         os.makedirs(cfg.output_dir+'/test', exist_ok=True)
-        test_auc, test_performance_metrics, test_thresholds, _, _ = train_utils.valid_test_epoch(name='test',
-                                                                                                 epoch='test',
-                                                                                                 model=model,
-                                                                                                 device=device,
-                                                                                                 data_loader=test_loader,
-                                                                                                 criterion=torch.nn.BCEWithLogitsLoss(),
-                                                                                                 eval_calibration=True,
-                                                                                                 limit=None, cfg=cfg)
+
+        test_auc, test_performance_metrics, test_thresholds, _, _ = valid_epoch(name='test',
+                                                                                 epoch='test',
+                                                                                 model=model,
+                                                                                 device=device,
+                                                                                 data_loader=test_loader,
+                                                                                 criterions=torch.nn.BCEWithLogitsLoss(),
+                                                                                 priors=True, dataset_name=dataset_name,
+                                                                                 cfg=cfg)
 
         with open(cfg.output_dir, '/test/', f'{dataset_name}-test-performance-metrics.pkl', 'wb') as f:
             pickle.dump(test_performance_metrics, f)
