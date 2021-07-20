@@ -6,7 +6,7 @@ import numpy as np
 
 import torch
 import torchvision, torchvision.transforms
-from imbalanceCXR.configure_datasets import parseDatasets
+from configure_datasets import parseDatasets
 import random
 from imbalanceCXR.train_utils import train
 from imbalanceCXR.test_utils import valid_epoch

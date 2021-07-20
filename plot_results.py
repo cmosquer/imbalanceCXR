@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.metrics import auc,brier_score_loss, roc_curve, roc_auc_score, confusion_matrix,precision_recall_curve
 
 from sklearn.metrics import auc as sklearnAUC
-from utils import plotDiscriminationMetrics,plotBrierMetrics
+from imbalanceCXR.utils import plotDiscriminationMetrics,plotBrierMetrics
 
 import argparse
 
