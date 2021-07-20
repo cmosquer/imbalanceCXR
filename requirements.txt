@@ -2,3 +2,4 @@ focal-loss-torch
 torchxrayvision
 scikit-learn
 matplotlib
+ipython
