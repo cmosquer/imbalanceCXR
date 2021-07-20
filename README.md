@@ -16,7 +16,7 @@ This repository can be used to reproduce the experiments described in the articl
 
 ### Train and test models with multiple splitting seeds
 
-``python train_model.py --output_dir="/home/myuser/CXRoutput/" -dataset=chex --n_seeds=True --seed=5 --save_preds=True`` 
+``python train_model.py --output_dir="/home/myuser/CXRoutput/" --dataset=chex --n_seeds=True --seed=5 --save_preds=True`` 
 
 ### Plot results
 
