@@ -68,7 +68,7 @@ def getCalibrationMetrics(labels, probs, save_details_pathology=None):
     return Npos, ece, mce, ecePos, mcePos, eceNeg, mceNeg, brier, brierPos, brierNeg, nll
 
 
-def getMetrics(y_true, y_pred, save_details_pathology, metrics_results, YI_thresholds_roc, costs_thr=None):
+def getMetrics(y_true, y_pred, metrics_results, YI_thresholds_roc, save_details_pathology=None, costs_thr=None):
     fpr, tpr, thr = roc_curve(y_true, y_pred)
     youden_index_thres = thr[np.argmax(tpr - fpr)]
     YI_thresholds_roc.append(youden_index_thres)
@@ -299,7 +299,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                 th_posteriors = Tau_bayes / (1 + Tau_bayes)
 
                 print('\nCOSTS TH: ', th_posteriors)
-                metrics_results_calibrated, thresholds_roc_calibrated = getMetrics(y_true, y_pred, None,
+                metrics_results_calibrated, thresholds_roc_calibrated = getMetrics(y_true, y_pred,
                                                                                    metrics_results_calibrated,
                                                                                    thresholds_roc_calibrated,
                                                                                    costs_thr=th_posteriors,
