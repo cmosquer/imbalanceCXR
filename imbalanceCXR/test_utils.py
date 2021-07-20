@@ -11,7 +11,7 @@ from sklearn.metrics import auc as sklearnAUC
 from imbalanceCXR.utils import tqdm
 
 try:
-    from calibration import logregCal, PAV
+    from imbalanceCXR.calibration import logregCal, PAV
     CALIBRATION_AVAILABLE = True
 except Exception as e:
     print(e, "Couldnt import logregCal, wont apply calibration")
