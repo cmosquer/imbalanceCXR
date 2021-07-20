@@ -223,6 +223,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                     #Fit a linear calibrator to the validation set
                     a, b = logregCal(tar, non, ptar_hat, return_params=True)
                     k = -np.log((1 - ptar) / ptar)
+                    print('a {:.2f} b {:.2f} k {:.2f}'.format(a,b,k))
                     calibration_parameters[pathology] = {'a': a, 'b': b, 'k': k}
                 pathology_outputs_sigmoid_calibrated[pathology] = 1 / (1 + np.exp(-(a * LLR + b) + k))
 
