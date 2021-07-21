@@ -159,7 +159,6 @@ for _seed in seed_list:
 
         with open(os.path.join(cfg.output_dir, f'{dataset_name}-priors.pkl'), "rb") as f:
             priors_dict = pickle.load(f)
-        print('PRIORS TRAIN POS', priors_dict['train']['priors_pos'])
         os.makedirs(cfg.output_dir+'/test', exist_ok=True)
         criterions_test, priors_test = getCriterions(test_loader)
         priors_dict['test'] = priors_test
@@ -169,7 +168,8 @@ for _seed in seed_list:
                                                                                  device=device,
                                                                                  data_loader=test_loader,
                                                                                  criterions=criterions_test,
-                                                                                 priors=True, dataset_name=dataset_name,
+                                                                                 priors=priors_dict,
+                                                                                 dataset_name=dataset_name,
                                                                                  cfg=cfg)
 
         with open(cfg.output_dir, '/test/', f'{dataset_name}-test-performance-metrics.pkl', 'wb') as f:
