@@ -97,11 +97,13 @@ def getMetrics(y_true, y_pred, metrics_results, YI_thresholds_roc, save_details_
     metrics_results['brier'].append(brier)
     metrics_results['brier+'].append(brierPos)
     metrics_results['brier-'].append(brierNeg)
+    metrics_results['balancedBrier'].append(brierPos+brierNeg)
     metrics_results['nllSklearn'].append(nllSklearn)
     try:
-        f1cost = f1_score(y_true, y_pred > costs_thr)
-        acccost = accuracy_score(y_true, y_pred > costs_thr)
         if costs_thr is not None:
+            f1cost = f1_score(y_true, y_pred > costs_thr)
+            acccost = accuracy_score(y_true, y_pred > costs_thr)
+
             metrics_results['f1score-costsTh'].append(f1cost)
             metrics_results['accuracy-costsTh'].append(acccost)
     except Exception as e:
@@ -249,7 +251,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                    'ECE', 'MCE',
                    'ECE+', 'MCE+',
                    'ECE-', 'MCE-',
-                   'brier', 'brier+', 'brier-',
+                   'brier', 'brier+', 'brier-','balancedBrier',
                    'AUC-ROC', 'AUC-PR',
                    'f1score-0.5', 'f1score-costsTh',
                    'accuracy-0.5', 'accuracy-costsTh',
