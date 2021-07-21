@@ -10,7 +10,7 @@ from imbalanceCXR.configure_datasets import parseDatasets
 import random
 from imbalanceCXR.train_utils import train
 from imbalanceCXR.test_utils import valid_epoch
-from imbalanceCXR.utils import getModel
+from imbalanceCXR.utils import getModel, getCriterions
 import torchxrayvision as xrv
 import argparse
 
@@ -160,13 +160,14 @@ for _seed in seed_list:
         with open(os.path.join(cfg.output_dir, f'{dataset_name}-priors.pkl'), "rb") as f:
             priors_dict = pickle.load(f)
         os.makedirs(cfg.output_dir+'/test', exist_ok=True)
-
+        criterions_test, priors_test = getCriterions(test_loader)
+        priors_dict['test'] = priors_test
         test_auc, test_performance_metrics, test_thresholds, _, _ = valid_epoch(name='test',
                                                                                  epoch='test',
                                                                                  model=model,
                                                                                  device=device,
                                                                                  data_loader=test_loader,
-                                                                                 criterions={'NLL':torch.nn.BCEWithLogitsLoss()},
+                                                                                 criterions=criterions_test,
                                                                                  priors=True, dataset_name=dataset_name,
                                                                                  cfg=cfg)
 

@@ -329,6 +329,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                 llrs, ntar, nnon = pav.llrs()
                 print(pathology,llrs)
                 print(ntar,nnon)
+                #Usar priors['test'] para ptar?
                 """
                 for p in np.atleast_1d(ptar):
     
