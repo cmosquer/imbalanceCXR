@@ -98,10 +98,15 @@ def getMetrics(y_true, y_pred, metrics_results, YI_thresholds_roc, save_details_
     metrics_results['brier+'].append(brierPos)
     metrics_results['brier-'].append(brierNeg)
     metrics_results['nllSklearn'].append(nllSklearn)
-
-    if costs_thr is not None:
-        metrics_results['f1score-costsTh'].append(f1_score(y_true, y_pred > costs_thr))
-        metrics_results['accuracy-costsTh'].append(accuracy_score(y_true, y_pred > costs_thr))
+    try:
+        f1cost = f1_score(y_true, y_pred > costs_thr)
+        acccost = accuracy_score(y_true, y_pred > costs_thr)
+        if costs_thr is not None:
+            metrics_results['f1score-costsTh'].append(f1cost)
+            metrics_results['accuracy-costsTh'].append(acccost)
+    except Exception as e:
+        print(e)
+        print(costs_thr)
 
     return metrics_results, YI_thresholds_roc
 
@@ -291,12 +296,12 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
             if len(np.unique(pathology_targets[pathology])) > 1:
                 y_true, y_pred = np.array(pathology_targets[pathology], dtype=np.int64), \
                                  pathology_outputs_sigmoid_calibrated[pathology]
-                ptar = priors['valid']['priors_pos']
+                ptar = priors['valid']['priors_pos'][pathology]
                 Tau_bayes = cost_ratio * (1 - ptar) / ptar
 
                 th_posteriors = Tau_bayes / (1 + Tau_bayes)
 
-                print('\nCOSTS TH: ', th_posteriors)
+                print('\n{} - COSTS TH: {}'.format(pathology,th_posteriors))
                 metrics_results_calibrated, thresholds_roc_calibrated = getMetrics(y_true, y_pred,
                                                                                    metrics_results_calibrated,
                                                                                    thresholds_roc_calibrated,
