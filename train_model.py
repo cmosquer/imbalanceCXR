@@ -166,7 +166,7 @@ for _seed in seed_list:
                                                                                  model=model,
                                                                                  device=device,
                                                                                  data_loader=test_loader,
-                                                                                 criterions=torch.nn.BCEWithLogitsLoss(),
+                                                                                 criterions={'NLL':torch.nn.BCEWithLogitsLoss()},
                                                                                  priors=True, dataset_name=dataset_name,
                                                                                  cfg=cfg)
 
