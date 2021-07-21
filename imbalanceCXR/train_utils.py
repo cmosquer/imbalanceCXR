@@ -89,7 +89,7 @@ def train(model, dataset, dataset_name, cfg):
             [int(w[len(join(cfg.output_dir, f'{dataset_name}-e')):-len('.pt')].split('-')[0]) for w in weights_files])
         start_epoch = epochs.max()
         weights_file = [weights_files[i] for i in np.argwhere(epochs == np.amax(epochs)).flatten()][0]
-        model.load_state_dict(torch.load(weights_file).state_dict())
+        model.load_state_dict(torch.load(weights_file))
         print("Resuming training at epoch {0}.".format(start_epoch))
         print("Weights loaded: {0}".format(weights_file))
 
@@ -137,7 +137,7 @@ def train(model, dataset, dataset_name, cfg):
             best_metric_roc = np.mean(aucroc_valid)
             print('new best roc ', best_metric_roc)
             weights_for_best_validauc = model.state_dict()
-            torch.save(model, join(cfg.output_dir, f'{dataset_name}-best_roc.pt'))
+            torch.save(model.state_dict(), join(cfg.output_dir, f'{dataset_name}-best_roc.pt'))
             with open(join(cfg.output_dir, f'{dataset_name}-best-thresholds_roc.pkl'), "wb") as f:
                 pickle.dump(thresholds, f)
         if np.mean(aucpr_valid) > best_metric_pr:
@@ -145,7 +145,7 @@ def train(model, dataset, dataset_name, cfg):
             print('new best pr ', best_metric_pr)
 
             weights_for_best_validauc = model.state_dict()
-            torch.save(model, join(cfg.output_dir, f'{dataset_name}-best_pr.pt'))
+            torch.save(model.state_dict(), join(cfg.output_dir, f'{dataset_name}-best_pr.pt'))
 
         stat = {
             "epoch": epoch + 1,
@@ -162,7 +162,7 @@ def train(model, dataset, dataset_name, cfg):
             pickle.dump(metrics, f)
 
         if cfg.save_all_models:
-            torch.save(model, join(cfg.output_dir, f'{dataset_name}-e{epoch + 1}.pt'))
+            torch.save(model.state_dict(), join(cfg.output_dir, f'{dataset_name}-e{epoch + 1}.pt'))
 
     return metrics, best_metric_roc, weights_for_best_validauc
 
