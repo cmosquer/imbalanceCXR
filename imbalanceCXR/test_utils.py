@@ -138,7 +138,6 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
         pathology_outputs_sigmoid_calibrated[pathology] = []
 
     cost_ratio = 1 / 1  # Cost of false positives over cost of false negatives. TODO: Make it configurable for each pathology
-    print('initial --->', n_count)
     with torch.no_grad():
         t = tqdm(data_loader)
         for batch_idx, samples in enumerate(t):
@@ -162,7 +161,6 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                 pathology_outputs_sigmoid[pathology].append(pathology_output_sigmoid)
                 pathology_outputs[pathology].append(pathology_output.detach().cpu().numpy())
                 pathology_targets[pathology].append(pathology_target.detach().cpu().numpy())
-                print(pathology,'--->len ',len(pathology_target))
                 if len(pathology_target) > 0:
                     for loss_function, criterion in criterions.items():
                         criterion_pathology = criterion[pathology]
@@ -170,7 +168,6 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                         avg_loss_results[loss_function][pathology] += batch_loss_pathology
 
                     n_count[pathology] += len(pathology_target)
-                    print(pathology,'--->',n_count)
 
             del images
             del outputs
@@ -190,7 +187,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
 
         # Once we infered all batches and sum their losses, we unify predictions to average loss per pathology
         if name == 'test':
-            with open(join(cfg.output_dir, name, f'{dataset_name}-calibrator_parameters.pkl'), 'rb') as f:
+            with open(join(cfg.output_dir, 'valid', f'{dataset_name}-calibrator_parameters.pkl'), 'rb') as f:
                 calibration_parameters = pickle.load(f)
         else:
             calibration_parameters = {}
