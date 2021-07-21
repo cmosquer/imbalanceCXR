@@ -163,7 +163,7 @@ for _seed in seed_list:
         criterions_test, priors_test = getCriterions(test_loader)
         priors_dict['test'] = priors_test
         test_auc, test_performance_metrics, test_thresholds, _, _ = valid_epoch(name='test',
-                                                                                 epoch='test',
+                                                                                 epoch=0,
                                                                                  model=model,
                                                                                  device=device,
                                                                                  data_loader=test_loader,
