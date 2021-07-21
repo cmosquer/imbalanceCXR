@@ -148,7 +148,7 @@ for _seed in seed_list:
 
     if not cfg.only_train:
         print("Loading best weights")
-        weights_file = cfg.output_dir, f'/{dataset_name}-best_{cfg.selection_metric}.pt'
+        weights_file = cfg.output_dir+ f'/{dataset_name}-best_{cfg.selection_metric}.pt'
         model.load_state_dict(torch.load(weights_file))
         model.to(device)
         test_loader = torch.utils.data.DataLoader(test_dataset,
