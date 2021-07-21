@@ -43,8 +43,8 @@ parser.add_argument('--n_seeds',type=bool,default=False,help='If True, "seed" in
                                                              'Range from 0 to "seed"-1 will be used as seed. The whole configured proccess will be performed "seed" times')
 parser.add_argument('--seed', type=int, default=0, help='If n_seeds is True, seed determines the number of times the experiment is repeated. Otherwise it determines the specific spliting seed to use for the experiment')
 
-parser.add_argument('-only_test', type=str, default=False, help='Skip training')
-parser.add_argument('-only_train', type=str, default=False, help='Skip testing')
+parser.add_argument('--only_test', type=str, default=False, help='Skip training')
+parser.add_argument('--only_train', type=str, default=False, help='Skip testing')
 
 cfg = parser.parse_args()
 print(cfg)
@@ -148,7 +148,6 @@ for _seed in seed_list:
 
     if not cfg.only_train:
         print("Loading best weights")
-        dataset_name = cfg.dataset + "-" + cfg.model + "-" + cfg.name
         weights_file = cfg.output_dir, f'/{dataset_name}-best_{cfg.selection_metric}.pt'
         model.load_state_dict(torch.load(weights_file).state_dict())
         model.to(device)
