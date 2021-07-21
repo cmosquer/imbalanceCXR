@@ -162,14 +162,14 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                 pathology_outputs_sigmoid[pathology].append(pathology_output_sigmoid)
                 pathology_outputs[pathology].append(pathology_output.detach().cpu().numpy())
                 pathology_targets[pathology].append(pathology_target.detach().cpu().numpy())
-                print('LEN PATHOLOGY TARGET: ',len(pathology_target))
+                print(pathology,'--->len ',len(pathology_target))
                 if len(pathology_target) > 0:
                     for loss_function, criterion in criterions.items():
                         criterion_pathology = criterion[pathology]
                         batch_loss_pathology = criterion_pathology(pathology_output.double(), pathology_target.double())
                         avg_loss_results[loss_function][pathology] += batch_loss_pathology
 
-                    n_count[pathology] += len(samples)
+                    n_count[pathology] += len(pathology_target)
                     print(pathology,'--->',n_count)
 
             del images
