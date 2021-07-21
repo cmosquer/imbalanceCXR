@@ -23,3 +23,7 @@ This repository can be used to reproduce the experiments described in the articl
 ### Plot results
 
 ``python plot_results.py --output_dir="/home/myuser/CXRoutput/" --figures_dir="/home/myuser/CXRoutput/figures" --dataset=chex --n_seeds=5`` 
+
+![alt text](https://github.com/cmosquer/imbalanceCXR/blob/main/Figure3.png)
+
+![alt text](https://github.com/cmosquer/imbalanceCXR/blob/main/Figure5.png)
