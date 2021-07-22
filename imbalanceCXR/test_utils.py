@@ -195,43 +195,46 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
             pathology_outputs[pathology] = np.concatenate(pathology_outputs[pathology])
             pathology_outputs_sigmoid[pathology] = np.concatenate(pathology_outputs_sigmoid[pathology])
             pathology_targets[pathology] = np.concatenate(pathology_targets[pathology])
+            targets = pathology_targets[pathology]
+
             if CALIBRATION_AVAILABLE:
+                if len(targets) > 0:
+                    # Calibration with dca_plda package
+                    epsilon = 1e-100
+                    positive_posteriors = pathology_outputs_sigmoid[pathology]
+                    negative_posteriors = 1 - pathology_outputs_sigmoid[pathology]
 
-                # Calibration with dca_plda package
-                epsilon = 1e-100
-                positive_posteriors = pathology_outputs_sigmoid[pathology]
-                negative_posteriors = 1 - pathology_outputs_sigmoid[pathology]
-                targets = pathology_targets[pathology]
-                train_positive_prior = priors['train']['priors_pos'][pathology]
-                train_negative_prior = priors['train']['priors_neg'][pathology]
-                LLR = np.log((positive_posteriors + epsilon) / (negative_posteriors + epsilon)) - np.log(
-                    (train_positive_prior + epsilon) / (train_negative_prior + epsilon))
+                    train_positive_prior = priors['train']['priors_pos'][pathology]
+                    train_negative_prior = priors['train']['priors_neg'][pathology]
+                    LLR = np.log((positive_posteriors + epsilon) / (negative_posteriors + epsilon)) - np.log(
+                        (train_positive_prior + epsilon) / (train_negative_prior + epsilon))
 
-                tar = LLR[targets == 1]
-                non = LLR[targets == 0]
-                print('Len tar {} Len non {}'.format(len(tar), len(non)))
-                ptar = priors['valid']['priors_pos'][pathology]
-                theta = np.log(cost_ratio * (1 - ptar) / ptar)
-                ptar_hat = 1 / (1 + np.exp(theta))
-                if name=='test':
-                    # Apply linear calibrator that was fit with validation set
-                    a = calibration_parameters[pathology]['a']
-                    b = calibration_parameters[pathology]['b']
-                    k = calibration_parameters[pathology]['k']
+                    tar = LLR[targets == 1]
+                    non = LLR[targets == 0]
+                    print('Len tar {} Len non {}'.format(len(tar), len(non)))
+                    ptar = priors['valid']['priors_pos'][pathology]
+                    theta = np.log(cost_ratio * (1 - ptar) / ptar)
+                    ptar_hat = 1 / (1 + np.exp(theta))
+                    if name=='test':
+                        # Apply linear calibrator that was fit with validation set
+                        a = calibration_parameters[pathology]['a']
+                        b = calibration_parameters[pathology]['b']
+                        k = calibration_parameters[pathology]['k']
 
-                    #Fit PAV algorithm as reference of perfectly calibrated version of the model
-                    sc = np.concatenate((tar, non))
-                    la = np.zeros_like(sc, dtype=int)
-                    la[:len(tar)] = 1.0
-                    calibration_parameters[pathology]["pav"] = PAV(sc, la)
+                        #Fit PAV algorithm as reference of perfectly calibrated version of the model
+                        sc = np.concatenate((tar, non))
+                        la = np.zeros_like(sc, dtype=int)
+                        la[:len(tar)] = 1.0
+                        calibration_parameters[pathology]["pav"] = PAV(sc, la)
+                    else:
+                        #Fit a linear calibrator to the validation set
+                        a, b = logregCal(tar, non, ptar_hat, return_params=True)
+                        k = -np.log((1 - ptar) / ptar)
+                        print('a {:.2f} b {:.2f} k {:.2f}'.format(a,b,k))
+                        calibration_parameters[pathology] = {'a': a, 'b': b, 'k': k}
+                    pathology_outputs_sigmoid_calibrated[pathology] = 1 / (1 + np.exp(-(a * LLR + b) + k))
                 else:
-                    #Fit a linear calibrator to the validation set
-                    a, b = logregCal(tar, non, ptar_hat, return_params=True)
-                    k = -np.log((1 - ptar) / ptar)
-                    print('a {:.2f} b {:.2f} k {:.2f}'.format(a,b,k))
-                    calibration_parameters[pathology] = {'a': a, 'b': b, 'k': k}
-                pathology_outputs_sigmoid_calibrated[pathology] = 1 / (1 + np.exp(-(a * LLR + b) + k))
-
+                    print('Not calibrating pathology ',pathology)
         if name!='test':
             with open(join(cfg.output_dir, name, f'{dataset_name}-calibrator_parameters.pkl'), 'wb') as f:
                 pickle.dump(calibration_parameters, f)
@@ -323,6 +326,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
 
         if name=='test':
             for pathology in range(len(pathology_targets)):
+
                 pav = calibration_parameters[pathology]['pav']
                 llrs, ntar, nnon = pav.llrs()
                 print(pathology,llrs)
