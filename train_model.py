@@ -172,11 +172,11 @@ for _seed in seed_list:
                                                                                  dataset_name=dataset_name,
                                                                                  cfg=cfg)
 
-        print('AUCROC {} - AUCPR '.format(test_aucroc,test_aucpr))
-        with open(cfg.output_dir, '/test/', f'{dataset_name}-test-performance-metrics.pkl', 'wb') as f:
+        print('AUCROC {} - AUCPR {}'.format(test_aucroc,test_aucpr))
+        with open(cfg.output_dir + '/test/' + f'{dataset_name}-test-performance-metrics.pkl', 'wb') as f:
             pickle.dump(test_performance_metrics, f)
 
-        with open(cfg.output_dir, '/test/', f'{dataset_name}-test-thresholds.pkl', "wb") as f:
+        with open(cfg.output_dir + '/test/' + f'{dataset_name}-test-thresholds.pkl', "wb") as f:
             pickle.dump(test_thresholds, f)
 
 
