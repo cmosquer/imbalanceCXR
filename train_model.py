@@ -162,7 +162,7 @@ for _seed in seed_list:
         os.makedirs(cfg.output_dir+'/test', exist_ok=True)
         criterions_test, priors_test = getCriterions(test_loader)
         priors_dict['test'] = priors_test
-        test_auc, test_performance_metrics, test_thresholds, _, _ = valid_epoch(name='test',
+        test_aucroc,test_aucpr, test_performance_metrics, test_thresholds, _, _ = valid_epoch(name='test',
                                                                                  epoch=0,
                                                                                  model=model,
                                                                                  device=device,
@@ -172,6 +172,7 @@ for _seed in seed_list:
                                                                                  dataset_name=dataset_name,
                                                                                  cfg=cfg)
 
+        print('AUCROC {} - AUCPR '.format(test_aucroc,test_aucpr))
         with open(cfg.output_dir, '/test/', f'{dataset_name}-test-performance-metrics.pkl', 'wb') as f:
             pickle.dump(test_performance_metrics, f)
 
