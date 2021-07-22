@@ -122,7 +122,7 @@ for pathology_id, pathology_name in enumerate(sorted_pathologies):
                                               100 * mean_n_pos[current]))
         for seed in range(n_seeds):
             y_valid = (results_valid[seed]['targets'][current], results_valid[seed]['probas'][current])
-            if np.sum(y[1]) == 0:
+            if np.sum(y_valid[1]) == 0:
                 print('all zeros')
             # Get optimal threshold
             precision_valid, recall_valid, ths_prec_recall_valid = precision_recall_curve(y_valid[0], y_valid[1])
