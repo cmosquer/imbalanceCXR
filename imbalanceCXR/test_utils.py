@@ -331,7 +331,7 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                         pav = calibration_parameters[pathology]['pav']
                         llrs, ntar, nnon = pav.llrs()
                         print(pathology,llrs)
-                        print(ntar,nnon)
+                        print(n_count[pathology],ntar.sum()+nnon.sum())
                     except Exception as e:
                         print('Error in pav llrs computation: ',e)
                     #Usar priors['test'] para ptar?
