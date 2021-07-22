@@ -162,6 +162,8 @@ for _seed in seed_list:
         os.makedirs(cfg.output_dir+'/test', exist_ok=True)
         criterions_test, priors_test = getCriterions(test_loader)
         priors_dict['test'] = priors_test
+        with open(os.path.join(cfg.output_dir, f'{dataset_name}-priors.pkl'), "wb") as f:
+            pickle.dump(priors_dict,f)
         test_aucroc,test_aucpr, test_performance_metrics, test_thresholds, _, _ = valid_epoch(name='test',
                                                                                  epoch=0,
                                                                                  model=model,
