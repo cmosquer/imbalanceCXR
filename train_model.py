@@ -141,6 +141,8 @@ for _seed in seed_list:
     device = 'cuda' if cfg.cuda else 'cpu'
     dataset_name = "{}-{}-seed{}-{}".format(cfg.dataset, cfg.model, cfg.seed, cfg.loss_function)
     os.makedirs(cfg.output_dir + '/valid', exist_ok=True)
+    print(xrv.datasets.default_pathologies)
+
     if not cfg.only_test:
 
         train(model, train_dataset, dataset_name, cfg)
@@ -161,6 +163,10 @@ for _seed in seed_list:
             priors_dict = pickle.load(f)
         os.makedirs(cfg.output_dir+'/test', exist_ok=True)
         criterions_test, priors_test = getCriterions(test_loader)
+
+
+
+
         priors_dict['test'] = priors_test
         with open(os.path.join(cfg.output_dir, f'{dataset_name}-priors.pkl'), "wb") as f:
             pickle.dump(priors_dict,f)

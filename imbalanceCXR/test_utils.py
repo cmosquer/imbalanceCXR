@@ -330,6 +330,8 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
                     try:
                         pav = calibration_parameters[pathology]['pav']
                         llrs, ntar, nnon = pav.llrs()
+                        k = -np.log((1 - ptar) / ptar)
+                        pathology_outputs_sigmoid_calibrated[pathology] = 1 / (1 + np.exp(-(a * LLR + b) + k))
                         print(pathology,llrs)
                         print(n_count[pathology],ntar.sum()+nnon.sum())
                     except Exception as e:
