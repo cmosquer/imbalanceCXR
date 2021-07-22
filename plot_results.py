@@ -19,9 +19,13 @@ parser.add_argument('--trained_model', type=str, default="densenet121", help='De
 parser.add_argument('--n_seeds',type=int,default=5,help='Plot seeds from 0 to n-1')
 
 
-pathologies  = {'default':['Atelectasis', 'Consolidation', 'Infiltration', 'Pneumothorax', 'Edema', 'Emphysema', 'Fibrosis', 'Effusion', 'Pneumonia','Pleural_Thickening', 'Cardiomegaly', 'Nodule', 'Mass', 'Hernia', 'Lung Lesion', 'Fracture', 'Lung Opacity', 'Enlarged Cardiomediastinum'],
-                'nih':["Atelectasis", "Consolidation", "Infiltration", "Pneumothorax", "Edema", "Emphysema", "Fibrosis","Effusion", "Pneumonia", "Pleural_Thickening","Cardiomegaly", "Nodule", "Mass", "Hernia"],
-                'chex':["Enlarged Cardiomediastinum","Cardiomegaly","Lung Opacity","Lung Lesion","Edema","Consolidation","Pneumonia", "Atelectasis","Pneumothorax","Effusion","Fracture",
+pathologies  = {'default':['Atelectasis', 'Consolidation', 'Infiltration', 'Pneumothorax', 'Edema', 'Emphysema', 'Fibrosis',
+                           'Effusion', 'Pneumonia','Pleural thickening', 'Cardiomegaly', 'Nodule', 'Mass', 'Hernia', 'Lung lesion',
+                           'Fracture', 'Lung opacity', 'Enlarged cardiomediastinum'],
+                'nih':["Atelectasis", "Consolidation", "Infiltration", "Pneumothorax", "Edema", "Emphysema", "Fibrosis",
+                       "Effusion", "Pneumonia", "Pleural thickening","Cardiomegaly", "Nodule", "Mass", "Hernia"],
+                'chex':["Enlarged cardiomediastinum","Cardiomegaly","Lung opacity","Lung lesion","Edema","Consolidation",
+                        "Pneumonia", "Atelectasis","Pneumothorax","Effusion","Fracture",
                             #"Pleural Other", "Support Devices", 'No Finding'
                    ]}
 cfg = parser.parse_args()
@@ -114,7 +118,7 @@ for pathology_id, pathology_name in enumerate(sorted_pathologies):
         maxf1threhsold = np.array([None] * n_seeds)
 
         if len(pathology_name.split(' ')) > 1:
-            pathname = pathology_name.split(' ')[0][:7] + '\n' + pathology_name.split(' ')[1][:7] + '.'
+            pathname = pathology_name.split(' ')[0][:8] + '\n' + pathology_name.split(' ')[1][:8]
         else:
             pathname = pathology_name[:7]
 
@@ -204,7 +208,7 @@ for pathology_id, pathology_name in enumerate(sorted_pathologies):
         current = pathologies['default'].index(pathology_name)
 
         if len(pathology_name.split(' ')) > 1:
-            pathname = pathology_name.split(' ')[0][:7] + '\n' + pathology_name.split(' ')[1][:7] + '.'
+            pathname = pathology_name.split(' ')[0][:8] + '\n' + pathology_name.split(' ')[1][:8]
         else:
             pathname = pathology_name[:8]
 
