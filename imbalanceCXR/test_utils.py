@@ -326,21 +326,24 @@ def valid_epoch(name, epoch, model, device, data_loader, criterions, priors=None
 
         if name=='test':
             for pathology in range(len(pathology_targets)):
-
-                pav = calibration_parameters[pathology]['pav']
-                llrs, ntar, nnon = pav.llrs()
-                print(pathology,llrs)
-                print(ntar,nnon)
-                #Usar priors['test'] para ptar?
-                """
-                for p in np.atleast_1d(ptar):
-    
-                    logitPost = llrs + logit(p)
-    
-                    Ctar, Cnon = softplus(-logitPost), softplus(logitPost)
-                    min_cllr = p*(Ctar[ntar!=0] @ ntar[ntar!=0]) / ntar.sum() +  (1-p)*(Cnon[nnon!=0] @ nnon[nnon!=0]) / nnon.sum()  
-                    min_cllr /= -p*np.log(p) - (1-p)*np.log(1-p)
-                """
+                if len(pathology_targets[pathology])>0:
+                    try:
+                        pav = calibration_parameters[pathology]['pav']
+                        llrs, ntar, nnon = pav.llrs()
+                        print(pathology,llrs)
+                        print(ntar,nnon)
+                    except Exception as e:
+                        print('Error in pav llrs computation: ',e)
+                    #Usar priors['test'] para ptar?
+                    """
+                    for p in np.atleast_1d(ptar):
+        
+                        logitPost = llrs + logit(p)
+        
+                        Ctar, Cnon = softplus(-logitPost), softplus(logitPost)
+                        min_cllr = p*(Ctar[ntar!=0] @ ntar[ntar!=0]) / ntar.sum() +  (1-p)*(Cnon[nnon!=0] @ nnon[nnon!=0]) / nnon.sum()  
+                        min_cllr /= -p*np.log(p) - (1-p)*np.log(1-p)
+                    """
 
     return metrics_means['AUC-ROC'], metrics_means[
         'AUC-PR'], metrics_results, thresholds, pathology_outputs, pathology_targets
